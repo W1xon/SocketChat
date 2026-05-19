@@ -60,9 +60,14 @@
 
 ## 📸 Скриншоты
 
-| Меню | Чат | Группа |
-| :---: | :---: | :---: |
-| <img src="Assets/menu.png" style="width: 100%; max-width: 300px; height: auto;" alt="Menu"> | <img src="Assets/chat.png" style="width: 100%; max-width: 300px; height: auto;" alt="Chat"> | <img src="Assets/group.png" style="width: 100%; max-width: 300px; height: auto;" alt="Group"> |
+### Меню
+<img src="Assets/menu.png" style="width: 100%; max-width: 800px; height: auto;" alt="Menu">
+
+### Чат
+<img src="Assets/chat.png" style="width: 100%; max-width: 800px; height: auto;" alt="Chat">
+
+### Группа
+<img src="Assets/group.png" style="width: 100%; max-width: 800px; height: auto;" alt="Group">
 
 ---
 

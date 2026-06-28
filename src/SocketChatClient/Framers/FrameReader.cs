@@ -17,8 +17,6 @@ public class FrameReader : Framer
         var addressLen = GetAddressLength();
         return _buffer.AsSpan().Slice(AddressOffset + 4, addressLen);
     }
-
-
     public ReadOnlySpan<byte> GetKey()
     {
         return  _buffer.AsSpan().Slice(GetKeyOffset(), 12);

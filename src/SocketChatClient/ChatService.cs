@@ -14,7 +14,7 @@ public class ChatService
     private const byte ADDGROUP = 3;
 
     private static DateTime _lastPing;
-    private readonly Uri ChatUri = new Uri("wss://localhost:5000/nf_chat");
+    private readonly Uri ChatUri = new Uri("ws://127.0.0.1:5000/nf_chat");
     private ClientWebSocket _webSocket;
     public ConcurrentDictionary<string, List<string>> History;
     public event Action<string, string?> UpdateChats;
@@ -64,6 +64,7 @@ public class ChatService
                 .AddString(text)
                 .AddInt32(nameSize)
                 .AddData(name);
+            
             Crypter.Execute(writer.GetMessage(), writer.GetKey());
             await _webSocket.SendAsync(new ArraySegment<byte>(rented, 0, totalSize), WebSocketMessageType.Binary, true, default);
         }
@@ -92,7 +93,7 @@ public class ChatService
             ArrayPool<byte>.Shared.Return(rented);
         }
     }
-    public  async Task ReceiveLoop()
+    public async Task ReceiveLoop()
     {
         var bytes = ArrayPool<byte>.Shared.Rent(4096);
         try
@@ -102,9 +103,9 @@ public class ChatService
                 var result = await _webSocket.ReceiveAsync(new ArraySegment<byte>(bytes), default);
                 byte command = bytes[0];
 
-                if (command != SENDMESSAGE)
+                if (command != SENDMESSAGE
+                    || result.Count < 13)
                     continue;
-                if (result.Count < 13) continue;
                 FrameReader frameReader = new FrameReader(bytes[..result.Count]);
 
                 Crypter.Execute(frameReader.GetMessage(), frameReader.GetKey());

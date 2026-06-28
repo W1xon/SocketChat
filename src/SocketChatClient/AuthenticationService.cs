@@ -1,3 +1,4 @@
+using System.Buffers;
 using System.Net;
 using System.Net.Http.Headers;
 
@@ -5,7 +6,7 @@ namespace SocketChatClient;
 
 public class AuthenticationService
 {
-    private static Uri ServerUri = new Uri("https://localhost:5000");
+    private static Uri ServerUri = new Uri("http://127.0.0.1:5000");
     private static HttpClient _httpClient;
 
     public AuthenticationService()
@@ -15,23 +16,33 @@ public class AuthenticationService
             BaseAddress = ServerUri,
         };
     }
-    public  async Task<Guid> Auth( byte[] name)
+    public  async Task<Guid> Auth( byte[] name, byte[] hashPassword)
     {
-        using var content = new ByteArrayContent(name);
-        content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
-
-        using HttpResponseMessage response = await _httpClient.PostAsync("auth", content);
-        if (!response.IsSuccessStatusCode)
+        var totalSize = name.Length + hashPassword.Length;
+        byte[] data = ArrayPool<byte>.Shared.Rent(totalSize);
+        try
         {
-            if (response.StatusCode == HttpStatusCode.Conflict)
-            {
-                Console.WriteLine("Данный юзернейм занят");
-                return Guid.Empty;
-            }
-        }
+            Span<byte> dataSpan = data.AsSpan().Slice(0, totalSize);
+            name.CopyTo(dataSpan);
+            hashPassword.CopyTo(dataSpan.Slice(name.Length));
+            
+            using var content = new ByteArrayContent(data, 0, totalSize);
 
-        byte[] data =  await response.Content.ReadAsByteArrayAsync();
-        return new Guid(data);
+            content.Headers.ContentType = new MediaTypeHeaderValue("application/octet-stream");
+
+            using HttpResponseMessage response = await _httpClient.PostAsync("auth", content);
+            if(response.IsSuccessStatusCode)
+            {
+                byte[] dataGuid = await response.Content.ReadAsByteArrayAsync();
+                return new Guid(dataGuid);
+            }
+            else
+                return Guid.Empty;
+        }
+        finally
+        {
+            ArrayPool<byte>.Shared.Return(data);
+        }
     }
     public async Task Logout(Guid id)
     {

@@ -16,11 +16,11 @@ public class FrameReader : Framer
     {
         return _buffer.AsSpan().Slice(1,16);
     }
-    public ReadOnlySpan<byte> GetAddressSee()
+    public ReadOnlySpan<byte> GetAddressSpan()
     {
         var addressLen = BinaryPrimitives.ReadInt32LittleEndian(GetAddressLength());
         
-        return _buffer.AsSpan().Slice(AdddressLenOffset + 4, addressLen);
+        return _buffer.AsSpan().Slice(AddressLenOffset + 4, addressLen);
     }
     public ReadOnlySpan<byte> GetAddressLength()
     {

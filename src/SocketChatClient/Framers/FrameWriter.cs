@@ -16,7 +16,6 @@ public class FrameWriter : Framer
 
     public FrameWriter AddCommandType(byte command)
     {
-        
         _buffer[_offset++] = command;
         return this;
     }
